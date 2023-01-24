@@ -1,0 +1,46 @@
+use solana_sdk::{
+    account::Account,
+    entrypoint::{entrypoint, Entrypoint},
+    program_error::ProgramError,
+    pubkey::Pubkey,
+};
+
+#[entrypoint]
+pub fn process_instruction(
+    program_id: &Pubkey,
+    accounts: &[Account],
+    instruction_data: &[u8],
+) -> Result<(), ProgramError> {
+    // Parse instruction data
+    let (nft_id, owner_key, new_owner_key) = parse_instruction_data(instruction_data)?;
+
+    // Get the NFT account
+    let nft_account = accounts[nft_id].borrow();
+
+    // Check that the current owner of the NFT is the sender of the instruction
+    if nft_account.owner != owner_key {
+        return Err(ProgramError::InvalidArgument);
+    }
+
+    // Update the owner of the NFT
+    nft_account.owner = new_owner_key;
+
+    Ok(())
+}
+
+fn parse_instruction_data(data: &[u8]) -> Result<(usize, Pubkey, Pubkey), ProgramError> {
+    if data.len() != 64 {
+        return Err(ProgramError::InvalidInstructionData);
+    }
+
+    let nft_id = usize::from_le_bytes(data[0..8].try_into().unwrap());
+    let owner_key = Pubkey::new(&data[8..40]);
+    let new_owner_key = Pubkey::new(&data[40..72]);
+
+    Ok((nft_id, owner_key, new_owner_key))
+}
+//This contract's entrypoint function, process_instruction, takes an instruction that contains three parts:
+
+//the id of the NFT account,
+//the owner_key of the current owner of the NFT
+//new_owner_key the new owner of the NFT
