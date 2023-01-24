@@ -1,0 +1,18 @@
+use solana_sdk::{
+    account::Account,
+    entrypoint::{entrypoint, Entrypoint},
+    program_error::ProgramError,
+    pubkey::Pubkey,
+};
+
+#[entrypoint]
+pub fn process_instruction(
+    program_id: &Pubkey,
+    accounts: &[Account],
+    instruction_data: &[u8],
+) -> Result<(), ProgramError> {
+    // Parse instruction data
+    // Perform business logic
+    // Update accounts
+    Ok(())
+}
